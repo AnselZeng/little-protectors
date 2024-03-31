@@ -35,32 +35,53 @@ cursor_turret = pg.image.load("assets/Archer/36.png").convert_alpha()
 # buttons
 buy_turret_image = pg.image.load("assets/buttons/buy_turret.png").convert_alpha()
 cancel_image = pg.image.load("assets/buttons/cancel.png").convert_alpha()
+debug_image = pg.image.load("assets/buttons/debug.png").convert_alpha()
 
 # load json data for level
 # with open("levels/level.tmj") as file:
 #     world_data = json.load(file)
 
-
 def create_turret(mouse_pos):
     mouse_tile_x = mouse_pos[0] // c.TILE_SIZE
     mouse_tile_y = mouse_pos[1] // c.TILE_SIZE
+    mouseTile = (mouse_tile_x, mouse_tile_y)
     # calculate the sequential number of the tile
     # mouse_tile_num = (mouse_tile_y * c.COLS) + mouse_tile_x
-    # # check if that tile is grass
     # if world.tile_map[mouse_tile_num] == 7:
-    #     # check that there isn't already a turret there
-    space_is_free = True
+
+    # check if that tile is grass
+    if mouseTile in pathTiles:
+        print("Can't place turret on path")
+        return
+    
+    # check that there isn't already a turret there
     for turret in turret_group:
-        if (mouse_tile_x, mouse_tile_y) == (turret.tile_x, turret.tile_y):
-            space_is_free = False
-        # if it is a free space then create turret
-    if space_is_free == True:
-        new_turret = Turret(turret_sheet, mouse_tile_x, mouse_tile_y)
-        turret_group.add(new_turret)
+        if mouseTile == (turret.tile_x, turret.tile_y):
+            print("Turret already there")
+            return
+    # if it is a free space then create turret
+    new_turret = Turret(turret_sheet, mouse_tile_x, mouse_tile_y)
+    turret_group.add(new_turret)
 
 
 # create world
 world = World(map_image)
+# initialise path data
+pathTiles = [
+    [0, 2], [1, 2], [2, 2], [3, 2], [4, 2], [5, 2],
+    [5, 3],
+    [5, 4], 
+    [0, 5], [1, 5], [2, 5], [3, 5], [4, 5], [5, 5], [6, 5], [7, 5], [8, 5], [9, 5],
+    [5, 6], [9, 6],
+    [5, 7], [9, 7],
+    [5, 8], [9, 8],
+    [5, 9], [6, 9], [7, 9], [8, 9], [9, 9], [12, 9], [13, 9], [14, 9],
+    [9, 10],[12, 10],
+    [9, 11],[12, 11],
+    [9, 12],[10, 12],[11, 12],[12, 12],
+]
+pathTiles = list(map(lambda x: (x[0], x[1]), pathTiles))
+
 # world.process_data()
 
 # create groups
@@ -73,6 +94,7 @@ turret_group = pg.sprite.Group()
 # create buttons
 turret_button = Button(c.SCREEN_WIDTH + 30, 120, buy_turret_image, True)
 cancel_button = Button(c.SCREEN_WIDTH + 50, 180, cancel_image, True)
+debug_button = Button(c.SCREEN_WIDTH + 50, 240, debug_image, True)
 
 # game loop
 run = True
@@ -102,9 +124,17 @@ while run:
     turret_group.draw(screen)
 
     # draw buttons
+    # debug button for testing
+    if debug_button.draw(screen):
+        print("Debug button pressed")
+        print("Turret group:")
+        for turret in turret_group:
+            print(turret.tile_x, turret.tile_y)
+
     # button for placing turrets
     if turret_button.draw(screen):
         placing_turrets = True
+    
     # if placing turrets then show the cancel button as well
     if placing_turrets == True:
         # show cursor turret
