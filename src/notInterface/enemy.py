@@ -16,14 +16,20 @@ class Enemy(pg.sprite.Sprite):
         # Update image
         self.image = self.animationList[self.frameIndex]
         self.rect = self.image.get_rect()
-        self.rect.center = ((tile[0] + 0.5) * c.TILE_SIZE, (tile[1] + 0.5) * c.TILE_SIZE)
+        self.rect.center = (self.tileToPixel(tile))
         self.lastUpdate = pg.time.get_ticks()
 
-    def move(self, dx, dy):
-        for _ in range(dx * c.TILE_SIZE):
-            self.rect.x += 1
-        for _ in range(dy * c.TILE_SIZE):
-            self.rect.y += 1
+    def tileToPixel(self, tile):
+        return (tile[0] + 0.5) * c.TILE_SIZE, (tile[1] + 0.5) * c.TILE_SIZE
+    def pixelToTile(self, pixel):
+        return int(pixel[0] / c.TILE_SIZE - .5), int(pixel[1] / c.TILE_SIZE - .5)
+
+    def move(self, path):
+        for tileX, tileY in path:
+            target = self.tileToPixel((tileX, tileY))
+            while self.rect.center != target:
+                self.rect.center = self.moveStep(target)
+                yield
 
     def update(self):
         self.image = self.animationList[self.frameIndex]
