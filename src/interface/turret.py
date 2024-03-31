@@ -3,14 +3,14 @@ import src.notInterface.constants as c
 
 
 class Turret(pg.sprite.Sprite):
-    def __init__(self, sprite_sheet, tile_x, tile_y):
+    def __init__(self, sprite_sheet, tile):
         pg.sprite.Sprite.__init__(self)
         self.cooldown = 1500
         self.last_shot = pg.time.get_ticks()
 
         # position variables
-        self.tile_x = tile_x
-        self.tile_y = tile_y
+        self.tile_x = tile[0]
+        self.tile_y = tile[1]
         # calculate center coordinates
         self.x = (self.tile_x + 0.5) * c.TILE_SIZE
         self.y = (self.tile_y + 0.5) * c.TILE_SIZE
@@ -30,7 +30,7 @@ class Turret(pg.sprite.Sprite):
         # extract images from spritesheet
         size = self.sprite_sheet.get_height()
         animation_list = []
-        for x in range(c.ANIMATION_STEPS):
+        for x in range(c.TR_ANIMATION_STEPS):
             temp_img = self.sprite_sheet.subsurface(x * size, 0, size, size)
             animation_list.append(temp_img)
         return animation_list
@@ -44,7 +44,7 @@ class Turret(pg.sprite.Sprite):
         # update image
         self.image = self.animation_list[self.frame_index]
         # check if enough time has passed since the last update
-        if pg.time.get_ticks() - self.update_time > c.ANIMATION_DELAY:
+        if pg.time.get_ticks() - self.update_time > c.TR_ANIMATION_DELAY:
             self.update_time = pg.time.get_ticks()
             self.frame_index += 1
         # check if the animation has finished and reset to idle
