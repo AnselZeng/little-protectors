@@ -45,18 +45,14 @@ class Game:
         ]
 
         self.path1 = [
-            (0, 2), (1, 2), (2, 2), (3, 2), (4, 2), (5, 2),
-            (5, 3),
-            (5, 4),
-            (5, 5),
-            (5, 6),
-            (5, 7),
-            (5, 8),
-            (5, 9), (6, 9), (7, 9), (8, 9), (9, 9),
-            (9, 10),
-            (9, 11),
-            (9, 12), (10, 12), (11, 12), (12, 12),
-            (12, 11), (12, 10), (12, 9), (13, 9), (14, 9),
+            (0, 2),
+            (5, 2),
+            (5, 9), 
+            (9, 9),
+            (9, 12), 
+            (12, 12),
+            (12, 9),
+            (14, 9),
         ]
         self.path2 = []
 
@@ -65,7 +61,7 @@ class Game:
         self.turretGroup = pg.sprite.Group()
 
         # TEST
-        self.enemyGroup.add(Enemy(self.enemySheet, 6, (5, 9)))
+        self.enemyGroup.add(Enemy(self.enemySheet, 6, self.path1))
 
         # Create buttons
         self.turretButton = Button(c.SCREEN_WIDTH + 30, 120, self.turretButtonImage, True)
