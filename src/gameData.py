@@ -57,21 +57,26 @@ ENEMY_DATA = {
     "rg": {
         "hp": 5,
         "speed": 1,
+        "gold": 10
     },
     "bg": {
         "hp": 8,
         "speed": 1,
+        "gold": 20
     },
     "yg": {
         "hp": 8,
         "speed": 1.25,
+        "gold": 30
     },
     "pg": {
         "hp": 10,
         "speed": 1,
+        "gold": 25
     },
     "tg": {
         "hp": 5,
         "speed": 2,
+        "gold": 30
     }
 }

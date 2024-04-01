@@ -85,6 +85,8 @@ class Turret(pg.sprite.Sprite):
             self.frame_index = 0
             # record completed time and clear target so cooldown can begin
             self.last_shot = pg.time.get_ticks()
+            if self.target:
+                self.target.takeDamage(1)
             self.target = None
 
     def draw(self, surface):

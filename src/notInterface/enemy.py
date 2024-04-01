@@ -32,6 +32,11 @@ class Enemy(pg.sprite.Sprite):
 
     def tileToPixel(self, tile):
         return ((tile[0] + 0.5) * c.TILE_SIZE, (tile[1] + 0.5) * c.TILE_SIZE)
+    
+    def takeDamage(self, damage):
+        self.hp -= damage
+        if self.hp <= 0:
+            self.kill()
 
     def move(self):
         self.target = Vector2(self.tileToPixel(self.waypoints[self.nextWaypoint]))

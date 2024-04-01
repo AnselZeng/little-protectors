@@ -112,6 +112,9 @@ class Game:
         self.lastSpawn = pg.time.get_ticks()
         self.nextRound()
 
+        # Text display
+        self.textFont = pg.font.Font("Consolas", 24)
+
         # Create buttons
         self.turretButton = Button(
             c.SCREEN_WIDTH + 30, 120, self.turretButtonImage, True
@@ -119,22 +122,27 @@ class Game:
         self.cancelButton = Button(
             c.SCREEN_WIDTH + 50, 180, self.cancelButtonImage, True
         )
-        self.debugButton = Button(c.SCREEN_WIDTH + 50, 240, self.debugButtonImage, True)
+        self.nextRoundButton = Button(c.SCREEN_WIDTH + 50, 240, self.nextRoundButtonImage, True)
+
+        # Initialize resources
+        self.gold = 100
     
+    # Spawn enemies
     def spawnEnemies(self):
-        if not (self.spawnList1 or self.spawnList2):
+        if not (self.spawnList1 or self.spawnList2): # If there are no more enemies to spawn
             self.spawningEnemies = False
             self.currentRound += 1
             self.nextRound()
             return
-        if self.spawnList1:
+        if self.spawnList1: # If there are enemies to spawn on path 1
             enemyType = self.spawnList1.pop()
             self.enemyGroup.add(Enemy(enemyType, self.enemySheets, self.path1))
-        if self.spawnList2:
+        if self.spawnList2: # If there are enemies to spawn on path 2
             enemyType = self.spawnList2.pop()
             self.enemyGroup.add(Enemy(enemyType, self.enemySheets, self.path2))
 
-    def nextRound(self):
+    # Load the next round of enemies
+    def nextRound(self): 
         if self.currentRound == len(ROUNDS):
             print("Game over")
             return
@@ -175,7 +183,7 @@ class Game:
         self.cancelButtonImage = pg.image.load(
             "assets/buttons/cancel.png"
         ).convert_alpha()
-        self.debugButtonImage = pg.image.load(
+        self.nextRoundButtonImage = pg.image.load(
             "assets/buttons/debug.png"
         ).convert_alpha()
 
@@ -243,9 +251,9 @@ class Game:
                 turret.draw(self.screen)
 
             # Draw buttons
-            # Debug button
+            # Next round button
             if len(self.enemyGroup) == 0:
-                if self.debugButton.draw(self.screen):
+                if self.nextRoundButton.draw(self.screen):
                     self.roundInProgress = True
                     self.spawningEnemies = True
 
