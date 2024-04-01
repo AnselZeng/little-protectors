@@ -7,6 +7,7 @@ from src.interface.turret import Turret
 from src.interface.button import Button
 from src.notInterface.enemy import Enemy
 import src.notInterface.constants as c
+from src.gameData import (ROUNDS)
 
 class Game:
     def __init__(self):
@@ -54,19 +55,59 @@ class Game:
             (12, 9),
             (14, 9),
         ]
-        self.path2 = []
+        self.path2 = [
+            (0, 5),
+            (9, 5),
+            (9, 12),
+            (12, 12),
+            (12, 9),
+            (14, 9),
+        ]
 
         # Create groups
         self.enemyGroup = pg.sprite.Group()
         self.turretGroup = pg.sprite.Group()
 
-        # TEST
-        self.enemyGroup.add(Enemy(self.enemySheet, 6, self.path1))
+        # Initialize rounds
+        self.currentRound = 0
+        self.roundInProgress = False
+        self.spawningEnemies = False
+        self.lastSpawn = pg.time.get_ticks()
+        self.nextRound()
 
         # Create buttons
         self.turretButton = Button(c.SCREEN_WIDTH + 30, 120, self.turretButtonImage, True)
         self.cancelButton = Button(c.SCREEN_WIDTH + 50, 180, self.cancelButtonImage, True)
         self.debugButton = Button(c.SCREEN_WIDTH + 50, 240, self.debugButtonImage, True)
+    
+    def spawnEnemies(self):
+        if not (self.spawnList1 or self.spawnList2):
+            self.spawningEnemies = False
+            self.currentRound += 1
+            self.nextRound()
+            return
+        if self.spawnList1:
+            enemyType = self.spawnList1.pop()
+            self.enemyGroup.add(Enemy(enemyType, self.enemySheets, self.path1))
+        if self.spawnList2:
+            enemyType = self.spawnList2.pop()
+            self.enemyGroup.add(Enemy(enemyType, self.enemySheets, self.path2))
+
+    def nextRound(self):
+        if self.currentRound == len(ROUNDS):
+            print("Game over")
+            return
+        enemyP1, enemyP2 = ROUNDS[self.currentRound]
+        self.spawnList1 = []
+        self.spawnList2 = []
+        for enemyType in enemyP1:
+            for _ in range(enemyP1[enemyType]):
+                self.spawnList1.append(enemyType)
+            for _ in range(enemyP2[enemyType]):
+                self.spawnList2.append(enemyType)
+        print(f"Round {self.currentRound + 1}/{len(ROUNDS)}")
+        print(self.spawnList1)
+        print(self.spawnList2)
 
     # Load images
     def load_images(self):
@@ -76,7 +117,15 @@ class Game:
         # Turret spritesheets
         self.turretSheet = pg.image.load("assets/archer/archer_shoot.png").convert_alpha()
         self.turretStatic = pg.image.load("assets/archer/archer_static.png").convert_alpha()
-        self.enemySheet = pg.image.load("assets/enemies/red_goblin_walk.png").convert_alpha()
+        
+        # Enemy spritesheets
+        self.enemySheets = {
+            "rg": pg.image.load("assets/enemies/red_goblin_walk.png").convert_alpha(),
+            "bg": pg.image.load("assets/enemies/blue_goblin_walk.png").convert_alpha(),
+            "yg": pg.image.load("assets/enemies/yellow_goblin_walk.png").convert_alpha(),
+            "pg": pg.image.load("assets/enemies/purple_goblin_walk.png").convert_alpha(),
+            "tg": pg.image.load("assets/enemies/tnt_goblin_walk.png").convert_alpha()
+        }
 
         # Buttons
         self.turretButtonImage = pg.image.load("assets/buttons/buy_turret.png").convert_alpha()
@@ -132,11 +181,10 @@ class Game:
 
             # Draw buttons
             # Debug button
-            if self.debugButton.draw(self.screen):
-                print("Debug button pressed")
-                print("Turret group:")
-                for turret in self.turretGroup:
-                    print((turret.tile_x, turret.tile_y))
+            if len(self.enemyGroup) == 0:
+                if self.debugButton.draw(self.screen):
+                    self.roundInProgress = True
+                    self.spawningEnemies = True
 
             # Enter turret placement mode
             if self.turretButton.draw(self.screen):
@@ -154,11 +202,18 @@ class Game:
                 if self.cancelButton.draw(self.screen):
                     self.placingTurrets = False
 
+            # Spawn enemies
+            if self.spawningEnemies:
+                if pg.time.get_ticks() - self.lastSpawn > c.SPAWN_RATE:
+                    self.spawnEnemies()
+                    self.lastSpawn = pg.time.get_ticks()
+
             # Event handler
             for event in pg.event.get():
                 # Quit program
                 if event.type == pg.QUIT:
-                    run = False
+                    run = False                      
+
                 # Mouse click
                 if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
                     mouse_pos = pg.mouse.get_pos()

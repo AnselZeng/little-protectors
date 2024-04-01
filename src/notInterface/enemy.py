@@ -1,14 +1,19 @@
 import pygame as pg
 from pygame.math import Vector2
 import src.notInterface.constants as c
-
+from src.gameData import (ENEMY_DATA)
 class Enemy(pg.sprite.Sprite):
-    def __init__(self, spriteSheet, frames, waypoints) -> None:
+    def __init__(self, type, spriteSheets, waypoints, frames = 6) -> None:
         # Call the parent class (Sprite) constructor
         pg.sprite.Sprite.__init__(self)
+
+        # Health
+        self.hp = ENEMY_DATA[type]["hp"]
+        self.speed = ENEMY_DATA[type]["speed"]
+        
         # Animation variables
-        size = spriteSheet.get_height()
-        self.animationList = [spriteSheet.subsurface(x * size, 0, size, size) for x in range(frames)]
+        size = spriteSheets[type].get_height()
+        self.animationList = [spriteSheets[type].subsurface(x * size, 0, size, size) for x in range(frames)]
 
         # Set animation variables
         self.frames = frames
@@ -24,14 +29,9 @@ class Enemy(pg.sprite.Sprite):
         self.pos = Vector2(self.tileToPixel(self.waypoints[0]))
         self.nextWaypoint = 1
         self.rect.center = (self.tileToPixel(self.pos))
-        self.speed = 1
-
-
 
     def tileToPixel(self, tile):
         return ((tile[0] + 0.5) * c.TILE_SIZE, (tile[1] + 0.5) * c.TILE_SIZE)
-    def pixelToTile(self, pixel):
-        return (int(pixel[0] / c.TILE_SIZE - .5), int(pixel[1] / c.TILE_SIZE - .5))
 
     def move(self):
         self.target = Vector2(self.tileToPixel(self.waypoints[self.nextWaypoint]))

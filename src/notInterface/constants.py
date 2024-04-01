@@ -9,3 +9,6 @@ FPS = 60
 # turret constants
 TR_ANIMATION_STEPS = 8
 TR_ANIMATION_DELAY = 120
+
+# Game properties
+SPAWN_RATE = 1500 # time between enemy spawns (ms)
