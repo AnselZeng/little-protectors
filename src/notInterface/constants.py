@@ -7,7 +7,7 @@ SCREEN_HEIGHT = TILE_SIZE * ROWS
 FPS = 60
 
 # turret constants
-TR_ANIMATION_STEPS = 8
+ARCHER_ANIM_STEPS = 8
 TR_ANIMATION_DELAY = 120
 
 # Game properties

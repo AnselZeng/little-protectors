@@ -113,20 +113,28 @@ class Game:
         self.nextRound()
 
         # Text display
-        self.textFont = pg.font.Font("Consolas", 24)
+        self.textFont = pg.font.SysFont("consolas", 24)
 
         # Create buttons
-        self.turretButton = Button(
-            c.SCREEN_WIDTH + 30, 120, self.turretButtonImage, True
+        self.archerButton = Button(
+            c.SCREEN_WIDTH - 20, 20, self.archerButtonImage, True
+        )
+        self.knightButton = Button(
+            c.SCREEN_WIDTH + 40, 20, self.knightButtonImage, True
         )
         self.cancelButton = Button(
-            c.SCREEN_WIDTH + 50, 180, self.cancelButtonImage, True
+            c.SCREEN_WIDTH + 50, 240, self.cancelButtonImage, True
         )
-        self.nextRoundButton = Button(c.SCREEN_WIDTH + 50, 240, self.nextRoundButtonImage, True)
+        self.nextRoundButton = Button(c.SCREEN_WIDTH + 50, 280, self.nextRoundButtonImage, True)
 
         # Initialize resources
         self.gold = 100
     
+    # Draw text
+    def drawText(self, text, font, colour, x, y):
+        img = font.render(text, True, colour)
+        self.screen.blit(img, (x, y))
+
     # Spawn enemies
     def spawnEnemies(self):
         if not (self.spawnList1 or self.spawnList2): # If there are no more enemies to spawn
@@ -164,8 +172,16 @@ class Game:
         self.mapImage = pg.image.load("assets/map/map.png").convert_alpha()
 
         # Turret spritesheets
-        self.turretSheet = pg.image.load("assets/archer/archer_shoot.png").convert_alpha()
-        self.turretStatic = pg.image.load("assets/archer/archer_static.png").convert_alpha()
+        self.turretSheets = {
+            "archer": pg.image.load("assets/archer/archer_shoot.png").convert_alpha(),
+            "knight": pg.image.load("assets/knight/knight_swing.png").convert_alpha(),
+
+        }
+
+        self.turretStatics = {
+            "archer": pg.image.load("assets/archer/archer_static.png").convert_alpha(),
+            "knight": pg.image.load("assets/knight/knight_static.png").convert_alpha(),
+        }
         
         # Enemy spritesheets
         self.enemySheets = {
@@ -177,8 +193,11 @@ class Game:
         }
 
         # Buttons
-        self.turretButtonImage = pg.image.load(
-            "assets/buttons/buy_turret.png"
+        self.archerButtonImage = pg.image.load(
+            "assets/archer/archer_static.png"
+        ).convert_alpha()
+        self.knightButtonImage = pg.image.load(
+            "assets/knight/knight_static.png"
         ).convert_alpha()
         self.cancelButtonImage = pg.image.load(
             "assets/buttons/cancel.png"
@@ -204,7 +223,8 @@ class Game:
                 return
 
         # if it is a free space then create turret
-        self.turretGroup.add(Turret(self.turretSheet, mouseTile))
+        self.turretGroup.add(Turret(self.turretType, self.turretSheets, mouseTile))
+        print(f"{self.turretType} turret created @ {mouseTile}")
 
     def select_turret(self, mouse_pos):
         mouse_tile_x = mouse_pos[0] // c.TILE_SIZE
@@ -250,6 +270,10 @@ class Game:
             for turret in self.turretGroup:
                 turret.draw(self.screen)
 
+            for turret in self.turretGroup:
+                if turret.target:
+                    pg.draw.line(self.screen, "red", turret.rect.center, turret.target.pos, 2)
+
             # Draw buttons
             # Next round button
             if len(self.enemyGroup) == 0:
@@ -258,17 +282,25 @@ class Game:
                     self.spawningEnemies = True
 
             # Enter turret placement mode
-            if self.turretButton.draw(self.screen):
+            if self.archerButton.draw(self.screen):
                 self.placingTurrets = True
+                self.turretType = "archer"
+            
+            # Enter turret placement mode
+            if self.knightButton.draw(self.screen):
+                self.placingTurrets = True
+                self.turretType = "knight"
+
+            self.drawText(f"Gold: {self.gold}", self.textFont, "black", c.SCREEN_WIDTH + 30, 30)
 
             # If placing turrets then show the cancel button as well
             if self.placingTurrets:
                 # Show turret image at mouse position
-                cursor_rect = self.turretStatic.get_rect()
+                cursor_rect = self.turretStatics[self.turretType].get_rect()
                 cursor_pos = pg.mouse.get_pos()
                 cursor_rect.center = cursor_pos
                 if cursor_pos[0] <= c.SCREEN_WIDTH:
-                    self.screen.blit(self.turretStatic, cursor_rect)
+                    self.screen.blit(self.turretStatics[self.turretType], cursor_rect)
                 # Exit placement mode if cancel button is pressed
                 if self.cancelButton.draw(self.screen):
                     self.placingTurrets = False

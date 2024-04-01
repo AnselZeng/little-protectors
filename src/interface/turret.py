@@ -1,16 +1,19 @@
 import pygame as pg
 import src.notInterface.constants as c
 import math
-
+from src.gameData import (TOWER_DATA)
+import heapq
 
 class Turret(pg.sprite.Sprite):
-    def __init__(self, sprite_sheet, tile):
+    def __init__(self, type, spriteSheets, tile):
         pg.sprite.Sprite.__init__(self)
-        self.range = 150
-        self.cooldown = 1500
+        self.range = TOWER_DATA[type]["range"] * c.TILE_SIZE
+        self.cooldown = TOWER_DATA[type]["cooldown"]
+        self.cost = TOWER_DATA[type]["cost"]
         self.last_shot = pg.time.get_ticks()
         self.selected = False
         self.target = None
+        self.type = type
 
         # position variables
         self.tile_x = tile[0]
@@ -20,7 +23,7 @@ class Turret(pg.sprite.Sprite):
         self.y = (self.tile_y + 0.5) * c.TILE_SIZE
 
         # animation variables
-        self.sprite_sheet = sprite_sheet
+        self.sprite_sheet = spriteSheets[type]
         self.animation_list = self.load_images()
         self.frame_index = 0
         self.update_time = pg.time.get_ticks()
@@ -47,7 +50,7 @@ class Turret(pg.sprite.Sprite):
         # extract images from spritesheet
         size = self.sprite_sheet.get_height()
         animation_list = []
-        for x in range(c.TR_ANIMATION_STEPS):
+        for x in range(TOWER_DATA[self.type]["animation_steps"]):
             temp_img = self.sprite_sheet.subsurface(x * size, 0, size, size)
             animation_list.append(temp_img)
         return animation_list
@@ -66,12 +69,15 @@ class Turret(pg.sprite.Sprite):
         x_dist = 0
         y_dist = 0
         # check distance to each enemy to see if it is in range
+        inRange = []
         for enemy in enemy_group:
             x_dist = enemy.pos[0] - self.x
             y_dist = enemy.pos[1] - self.y
             dist = math.sqrt(x_dist**2 + y_dist**2)
             if dist < self.range:
-                self.target = enemy
+                heapq.heappush(inRange, (dist, enemy))
+        self.closest = heapq.heappop(inRange)[1]
+        self.target = self.closest
 
     def play_animation(self):
         # update image

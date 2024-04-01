@@ -80,3 +80,26 @@ ENEMY_DATA = {
         "gold": 30
     }
 }
+
+TOWER_DATA = {
+    "archer": {
+        "damage": 2,
+        "range": 4,
+        "cooldown": 500,
+        "cost": 10,
+        "animation_steps": 8,
+    },
+    "knight": {
+        "damage": 1.5,
+        "range": 2,
+        "cooldown": 200,
+        "cost": 20,
+        "animation_steps": 6,
+    },
+    "fighter": {
+        "damage": 3,
+        "range": 3,
+        "cooldown": 300,
+        "cost": 30
+    }
+}
