@@ -8,6 +8,7 @@ from src.interface.button import Button
 from src.notInterface.enemy import Enemy
 import src.notInterface.constants as c
 
+
 class Game:
     def __init__(self):
 
@@ -18,7 +19,9 @@ class Game:
         self.clock = pg.time.Clock()
 
         # Create game window
-        self.screen = pg.display.set_mode((c.SCREEN_WIDTH + c.SIDE_PANEL, c.SCREEN_HEIGHT))
+        self.screen = pg.display.set_mode(
+            (c.SCREEN_WIDTH + c.SIDE_PANEL, c.SCREEN_HEIGHT)
+        )
         pg.display.set_caption("Little Defenders")
 
         self.load_images()
@@ -31,25 +34,54 @@ class Game:
 
         # initialise path data
         self.pathTiles = [
-            (0, 2), (1, 2), (2, 2), (3, 2), (4, 2), (5, 2),
+            (0, 2),
+            (1, 2),
+            (2, 2),
+            (3, 2),
+            (4, 2),
+            (5, 2),
             (5, 3),
-            (5, 4), 
-            (0, 5), (1, 5), (2, 5), (3, 5), (4, 5), (5, 5), (6, 5), (7, 5), (8, 5), (9, 5),
-            (5, 6), (9, 6),
-            (5, 7), (9, 7),
-            (5, 8), (9, 8),
-            (5, 9), (6, 9), (7, 9), (8, 9), (9, 9), (12, 9), (13, 9), (14, 9),
-            (9, 10),(12, 10),
-            (9, 11),(12, 11),
-            (9, 12),(10, 12),(11, 12),(12, 12),
+            (5, 4),
+            (0, 5),
+            (1, 5),
+            (2, 5),
+            (3, 5),
+            (4, 5),
+            (5, 5),
+            (6, 5),
+            (7, 5),
+            (8, 5),
+            (9, 5),
+            (5, 6),
+            (9, 6),
+            (5, 7),
+            (9, 7),
+            (5, 8),
+            (9, 8),
+            (5, 9),
+            (6, 9),
+            (7, 9),
+            (8, 9),
+            (9, 9),
+            (12, 9),
+            (13, 9),
+            (14, 9),
+            (9, 10),
+            (12, 10),
+            (9, 11),
+            (12, 11),
+            (9, 12),
+            (10, 12),
+            (11, 12),
+            (12, 12),
         ]
 
         self.path1 = [
             (0, 2),
             (5, 2),
-            (5, 9), 
+            (5, 9),
             (9, 9),
-            (9, 12), 
+            (9, 12),
             (12, 12),
             (12, 9),
             (14, 9),
@@ -60,12 +92,19 @@ class Game:
         self.enemyGroup = pg.sprite.Group()
         self.turretGroup = pg.sprite.Group()
 
+        # game variables
+        self.selected_turret = None
+
         # TEST
         self.enemyGroup.add(Enemy(self.enemySheet, 6, self.path1))
 
         # Create buttons
-        self.turretButton = Button(c.SCREEN_WIDTH + 30, 120, self.turretButtonImage, True)
-        self.cancelButton = Button(c.SCREEN_WIDTH + 50, 180, self.cancelButtonImage, True)
+        self.turretButton = Button(
+            c.SCREEN_WIDTH + 30, 120, self.turretButtonImage, True
+        )
+        self.cancelButton = Button(
+            c.SCREEN_WIDTH + 50, 180, self.cancelButtonImage, True
+        )
         self.debugButton = Button(c.SCREEN_WIDTH + 50, 240, self.debugButtonImage, True)
 
     # Load images
@@ -74,14 +113,26 @@ class Game:
         self.mapImage = pg.image.load("assets/map/map.png").convert_alpha()
 
         # Turret spritesheets
-        self.turretSheet = pg.image.load("assets/archer/archer_shoot.png").convert_alpha()
-        self.turretStatic = pg.image.load("assets/archer/archer_static.png").convert_alpha()
-        self.enemySheet = pg.image.load("assets/enemies/red_goblin_walk.png").convert_alpha()
+        self.turretSheet = pg.image.load(
+            "assets/archer/archer_shoot.png"
+        ).convert_alpha()
+        self.turretStatic = pg.image.load(
+            "assets/archer/archer_static.png"
+        ).convert_alpha()
+        self.enemySheet = pg.image.load(
+            "assets/enemies/red_goblin_walk.png"
+        ).convert_alpha()
 
         # Buttons
-        self.turretButtonImage = pg.image.load("assets/buttons/buy_turret.png").convert_alpha()
-        self.cancelButtonImage = pg.image.load("assets/buttons/cancel.png").convert_alpha()
-        self.debugButtonImage = pg.image.load("assets/buttons/debug.png").convert_alpha()
+        self.turretButtonImage = pg.image.load(
+            "assets/buttons/buy_turret.png"
+        ).convert_alpha()
+        self.cancelButtonImage = pg.image.load(
+            "assets/buttons/cancel.png"
+        ).convert_alpha()
+        self.debugButtonImage = pg.image.load(
+            "assets/buttons/debug.png"
+        ).convert_alpha()
 
     def create_turret(self, mouse_pos):
         mouse_tile_x = mouse_pos[0] // c.TILE_SIZE
@@ -92,16 +143,27 @@ class Game:
         if mouseTile in self.pathTiles:
             print("Can't place turret on path")
             return
-        
+
         # check that there isn't already a turret there
         for turret in self.turretGroup:
             if mouseTile == (turret.tile_x, turret.tile_y):
                 print("Turret already there")
                 return
-            
+
         # if it is a free space then create turret
         self.turretGroup.add(Turret(self.turretSheet, mouseTile))
-    
+
+    def select_turret(self, mouse_pos):
+        mouse_tile_x = mouse_pos[0] // c.TILE_SIZE
+        mouse_tile_y = mouse_pos[1] // c.TILE_SIZE
+        for turret in self.turretGroup:
+            if (mouse_tile_x, mouse_tile_y) == (turret.tile_x, turret.tile_y):
+                return turret
+
+    def clear_selection(self):
+        for turret in self.turretGroup:
+            turret.selected = False
+
     def run(self):
         # game loop
         run = True
@@ -115,7 +177,11 @@ class Game:
 
             # Update groups
             self.enemyGroup.update()
-            self.turretGroup.update()
+            self.turretGroup.update(self.enemyGroup)
+
+            # highlight selected turret
+            if self.selected_turret:
+                self.selected_turret.selected = True
 
             #########################
             # DRAWING SECTION
@@ -128,7 +194,8 @@ class Game:
 
             # Draw groups
             self.enemyGroup.draw(self.screen)
-            self.turretGroup.draw(self.screen)
+            for turret in self.turretGroup:
+                turret.draw(self.screen)
 
             # Draw buttons
             # Debug button
@@ -141,7 +208,7 @@ class Game:
             # Enter turret placement mode
             if self.turretButton.draw(self.screen):
                 self.placingTurrets = True
-            
+
             # If placing turrets then show the cancel button as well
             if self.placingTurrets:
                 # Show turret image at mouse position
@@ -165,8 +232,13 @@ class Game:
 
                     # Check if mouse is on the game area
                     if mouse_pos[0] < c.SCREEN_WIDTH and mouse_pos[1] < c.SCREEN_HEIGHT:
+                        # clear selected turrets
+                        self.selected_turret = None
+                        self.clear_selection()
                         if self.placingTurrets == True:
                             self.create_turret(mouse_pos)
+                        else:
+                            self.selected_turret = self.select_turret(mouse_pos)
 
             # update display
             pg.display.flip()
