@@ -25,7 +25,7 @@ class Turret(pg.sprite.Sprite):
         # animation variables
         self.sprite_sheet = spriteSheets[type]
         self.animation_list = self.load_images()
-        self.frame_index = 0
+        self.frame_index = len(self.animation_list) - 1
         self.update_time = pg.time.get_ticks()
 
         # update image
@@ -75,9 +75,9 @@ class Turret(pg.sprite.Sprite):
             y_dist = enemy.pos[1] - self.y
             dist = math.sqrt(x_dist**2 + y_dist**2)
             if dist < self.range:
-                heapq.heappush(inRange, (dist, enemy))
-        self.closest = heapq.heappop(inRange)[1]
-        self.target = self.closest
+                inRange.append((dist, enemy))
+        if inRange:
+            self.target = sorted(inRange, key=lambda x: x[0])[0][1]
 
     def play_animation(self):
         # update image
@@ -89,6 +89,7 @@ class Turret(pg.sprite.Sprite):
         # check if the animation has finished and reset to idle
         if self.frame_index >= len(self.animation_list):
             self.frame_index = 0
+            
             # record completed time and clear target so cooldown can begin
             self.last_shot = pg.time.get_ticks()
             if self.target:

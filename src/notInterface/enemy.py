@@ -8,6 +8,7 @@ class Enemy(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self)
 
         # Health
+        self.maxHp = ENEMY_DATA[type]["hp"]
         self.hp = ENEMY_DATA[type]["hp"]
         self.speed = ENEMY_DATA[type]["speed"]
         

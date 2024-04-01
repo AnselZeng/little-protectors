@@ -100,6 +100,7 @@ TOWER_DATA = {
         "damage": 3,
         "range": 3,
         "cooldown": 300,
-        "cost": 30
+        "cost": 30,
+        "animation_steps": 6
     }
 }

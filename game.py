@@ -116,16 +116,12 @@ class Game:
         self.textFont = pg.font.SysFont("consolas", 24)
 
         # Create buttons
-        self.archerButton = Button(
-            c.SCREEN_WIDTH - 20, 20, self.archerButtonImage, True
-        )
-        self.knightButton = Button(
-            c.SCREEN_WIDTH + 40, 20, self.knightButtonImage, True
-        )
-        self.cancelButton = Button(
-            c.SCREEN_WIDTH + 50, 240, self.cancelButtonImage, True
-        )
-        self.nextRoundButton = Button(c.SCREEN_WIDTH + 50, 280, self.nextRoundButtonImage, True)
+        self.archerButton = Button(c.SCREEN_WIDTH + 5, 70, self.archerButtonImage, True)
+        self.knightButton = Button(c.SCREEN_WIDTH + 105, 70, self.knightButtonImage, True)
+        self.fighterButton = Button(c.SCREEN_WIDTH + 205, 70, self.fighterButtonImage, True)
+        self.cancelButton = Button(c.SCREEN_WIDTH + 15, 750, self.cancelButtonImage, True)
+        self.nextRoundButton = Button(c.SCREEN_WIDTH -80, 750, self.nextRoundButtonImage, True)
+        self.sellButton = Button(c.SCREEN_WIDTH + 15, 750, self.sellButtonImage, True)
 
         # Initialize resources
         self.gold = 100
@@ -175,12 +171,13 @@ class Game:
         self.turretSheets = {
             "archer": pg.image.load("assets/archer/archer_shoot.png").convert_alpha(),
             "knight": pg.image.load("assets/knight/knight_swing.png").convert_alpha(),
-
+            "fighter": pg.image.load("assets/fighter/fighter_swing.png").convert_alpha(),
         }
 
         self.turretStatics = {
             "archer": pg.image.load("assets/archer/archer_static.png").convert_alpha(),
             "knight": pg.image.load("assets/knight/knight_static.png").convert_alpha(),
+            "fighter": pg.image.load("assets/fighter/fighter_static.png").convert_alpha(),
         }
         
         # Enemy spritesheets
@@ -193,18 +190,17 @@ class Game:
         }
 
         # Buttons
-        self.archerButtonImage = pg.image.load(
-            "assets/archer/archer_static.png"
-        ).convert_alpha()
-        self.knightButtonImage = pg.image.load(
-            "assets/knight/knight_static.png"
-        ).convert_alpha()
-        self.cancelButtonImage = pg.image.load(
-            "assets/buttons/cancel.png"
-        ).convert_alpha()
-        self.nextRoundButtonImage = pg.image.load(
-            "assets/buttons/debug.png"
-        ).convert_alpha()
+        # Turret buttons
+        self.archerButtonImage= pg.image.load("assets/protectors/archer1.png").convert_alpha()
+        self.archerButtonImageFaded = pg.image.load("assets/protectors/archer2.png").convert_alpha()
+        self.knightButtonImage = pg.image.load("assets/protectors/knight1.png").convert_alpha()
+        self.knightButtonImageFaded = pg.image.load("assets/protectors/knight2.png").convert_alpha()
+        self.fighterButtonImage = pg.image.load("assets/protectors/fighter1.png").convert_alpha()
+        self.fighterButtonImageFaded = pg.image.load("assets/protectors/fighter2.png").convert_alpha()
+
+        self.cancelButtonImage = pg.image.load("assets/buttons/cancel_icon.png").convert_alpha()
+        self.nextRoundButtonImage = pg.image.load("assets/buttons/play.png").convert_alpha()
+        self.sellButtonImage = pg.image.load("assets/buttons/sell.png").convert_alpha()
 
     def create_turret(self, mouse_pos):
         mouse_tile_x = mouse_pos[0] // c.TILE_SIZE
@@ -288,13 +284,26 @@ class Game:
             if self.archerButton.draw(self.screen):
                 self.placingTurrets = True
                 self.turretType = "archer"
-            
-            # Enter turret placement mode
             if self.knightButton.draw(self.screen):
                 self.placingTurrets = True
                 self.turretType = "knight"
+            if self.fighterButton.draw(self.screen):
+                self.placingTurrets = True
+                self.turretType = "fighter"
+            
 
-            self.drawText(f"Gold: {self.gold}", self.textFont, "black", c.SCREEN_WIDTH + 30, 30)
+            self.drawText(f"Gold: {self.gold}", self.textFont, "black", 30, 30)
+
+            for enemy in self.enemyGroup:
+                pg.draw.rect(enemy.image, (255, 0, 0), (enemy.pos[0], enemy.pos[1], 50, 5))
+                pg.draw.rect(enemy.image, (0, 255, 0), (enemy.pos[0], enemy.pos[1], 50 * (enemy.hp / enemy.maxHp), 5))
+
+            # Sell button should only be visible when a turret is selected
+            if self.selected_turret:
+                if self.sellButton.draw(self.screen):
+                    self.turretGroup.remove(self.selected_turret)
+                    self.gold += self.selected_turret.cost // 2
+                    self.selected_turret = None
 
             # If placing turrets then show the cancel button as well
             if self.placingTurrets:
@@ -302,8 +311,10 @@ class Game:
                 cursor_rect = self.turretStatics[self.turretType].get_rect()
                 cursor_pos = pg.mouse.get_pos()
                 cursor_rect.center = cursor_pos
+
                 if cursor_pos[0] <= c.SCREEN_WIDTH:
                     self.screen.blit(self.turretStatics[self.turretType], cursor_rect)
+
                 # Exit placement mode if cancel button is pressed
                 if self.cancelButton.draw(self.screen):
                     self.placingTurrets = False
