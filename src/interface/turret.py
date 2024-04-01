@@ -14,6 +14,7 @@ class Turret(pg.sprite.Sprite):
         self.selected = False
         self.target = None
         self.type = type
+        self.damage = TOWER_DATA[type]["damage"]
 
         # position variables
         self.tile_x = tile[0]
@@ -93,7 +94,7 @@ class Turret(pg.sprite.Sprite):
             # record completed time and clear target so cooldown can begin
             self.last_shot = pg.time.get_ticks()
             if self.target:
-                self.target.takeDamage(1)
+                self.target.takeDamage(self.damage)
             self.target = None
 
     def draw(self, surface):

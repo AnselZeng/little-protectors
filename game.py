@@ -114,9 +114,6 @@ class Game:
         self.lastSpawn = pg.time.get_ticks()
         self.nextRound()
 
-        # Text display
-        self.textFont = pg.font.SysFont("consolas", 24)
-
         # Create buttons
         self.archerButton = Button(c.SCREEN_WIDTH + 5, 70, self.archerButtonImage, True)
         self.knightButton = Button(c.SCREEN_WIDTH + 105, 70, self.knightButtonImage, True)
@@ -125,13 +122,22 @@ class Game:
         self.nextRoundButton = Button(c.SCREEN_WIDTH -80, 750, self.nextRoundButtonImage, True)
         self.sellButton = Button(c.SCREEN_WIDTH + 15, 750, self.sellButtonImage, True)
 
+        # Upgrade buttons
+        self.attackButtonLeft = Button(c.SCREEN_WIDTH + 15, 520, self.upgradeLeftImage, True)
+        self.attackButtonRight = Button(c.SCREEN_WIDTH + 150, 520, self.upgradeRightImage, True)
+        self.rangeButtonLeft = Button(c.SCREEN_WIDTH + 15, 585, self.upgradeLeftImage, True)
+        self.rangeButtonRight = Button(c.SCREEN_WIDTH + 150, 585, self.upgradeRightImage, True)
+        self.speedButtonLeft = Button(c.SCREEN_WIDTH + 15, 650, self.upgradeLeftImage, True)
+        self.speedButtonRight = Button(c.SCREEN_WIDTH + 150, 650, self.upgradeRightImage, True)
+
         # Initialize resources
         self.gold = 100
         self.health = 10
     
     # Draw text
-    def drawText(self, text, font, colour, x, y):
-        img = font.render(text, True, colour)
+    def drawText(self, text, size, colour, x, y):
+        textFont = pg.font.SysFont("consolas", size)
+        img = textFont.render(text, True, colour)
         self.screen.blit(img, (x, y))
 
     # Spawn enemies
@@ -204,6 +210,9 @@ class Game:
         self.cancelButtonImage = pg.image.load("assets/buttons/cancel_icon.png").convert_alpha()
         self.nextRoundButtonImage = pg.image.load("assets/buttons/play.png").convert_alpha()
         self.sellButtonImage = pg.image.load("assets/buttons/sell.png").convert_alpha()
+
+        self.upgradeLeftImage = pg.image.load("assets/upgrades/left.png").convert_alpha()
+        self.upgradeRightImage = pg.image.load("assets/upgrades/right1.png").convert_alpha()
 
     def create_turret(self, mouse_pos):
         mouse_tile_x = mouse_pos[0] // c.TILE_SIZE
@@ -296,8 +305,8 @@ class Game:
                 self.turretType = "fighter"
             
             # Health and gold display
-            self.drawText(f"Gold: {self.gold}", self.textFont, "black", 30, 30)
-            self.drawText(f"Health: {self.health}", self.textFont, "black", 30, 60)
+            self.drawText(f"Gold: {self.gold}", 24, "black", 30, 30)
+            self.drawText(f"Health: {self.health}", 24, "black", 30, 60)
 
             # Sell button should only be visible when a turret is selected
             if self.selected_turret:
@@ -306,6 +315,25 @@ class Game:
                     self.gold += self.selected_turret.cost // 2
                     self.selected_turret.kill()
                     self.selected_turret = None
+                
+                # Selected turret
+                self.screen.blit(self.turretStatics[self.selected_turret.type], (c.SCREEN_WIDTH - 15, 380))
+                self.drawText(f"{self.selected_turret.type}", 30, "white", c.SCREEN_WIDTH + 150, 450)
+                # Upgrade buttons 
+                self.attackButtonLeft.draw(self.screen)
+                self.drawText(f"Atk: {self.selected_turret.damage}", 20, "white", c.SCREEN_WIDTH + 20, 540)
+                if self.attackButtonRight.draw(self.screen):
+                    print("Upgrade Attack")
+
+                self.rangeButtonLeft.draw(self.screen)
+                self.drawText(f"Rng: {self.selected_turret.range // c.TILE_SIZE}", 20, "white", c.SCREEN_WIDTH + 20, 605)
+                if self.rangeButtonRight.draw(self.screen):
+                    print("Upgrade Range")
+
+                self.speedButtonLeft.draw(self.screen)
+                self.drawText(f"Spd: {round(1/(self.selected_turret.cooldown/1000), 1)}", 20, "white", c.SCREEN_WIDTH + 20, 670)
+                if self.speedButtonRight.draw(self.screen):
+                    print("Upgrade Speed")
 
             # If placing turrets then show the cancel button as well
             if self.placingTurrets:
