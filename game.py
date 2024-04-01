@@ -213,6 +213,7 @@ class Game:
 
         self.upgradeLeftImage = pg.image.load("assets/upgrades/left.png").convert_alpha()
         self.upgradeRightImage = pg.image.load("assets/upgrades/right1.png").convert_alpha()
+        self.upgradeCardImage = pg.image.load("assets/upgrades/card.png").convert_alpha()
 
     def create_turret(self, mouse_pos):
         mouse_tile_x = mouse_pos[0] // c.TILE_SIZE
@@ -317,9 +318,11 @@ class Game:
                     self.selected_turret = None
                 
                 # Selected turret
+                self.screen.blit(self.upgradeCardImage, (c.SCREEN_WIDTH + 5, 400))
                 self.screen.blit(self.turretStatics[self.selected_turret.type], (c.SCREEN_WIDTH - 15, 380))
                 self.drawText(f"{self.selected_turret.type}", 30, "white", c.SCREEN_WIDTH + 150, 450)
                 # Upgrade buttons 
+
                 self.attackButtonLeft.draw(self.screen)
                 self.drawText(f"Atk: {self.selected_turret.damage}", 20, "white", c.SCREEN_WIDTH + 20, 540)
                 if self.attackButtonRight.draw(self.screen):
