@@ -125,6 +125,7 @@ class Game:
 
         # Initialize resources
         self.gold = 100
+        self.health = 10
     
     # Draw text
     def drawText(self, text, font, colour, x, y):
@@ -140,10 +141,10 @@ class Game:
             return
         if self.spawnList1: # If there are enemies to spawn on path 1
             enemyType = self.spawnList1.pop()
-            self.enemyGroup.add(Enemy(enemyType, self.enemySheets, self.path1))
+            self.enemyGroup.add(Enemy(self, enemyType, self.enemySheets, self.path1))
         if self.spawnList2: # If there are enemies to spawn on path 2
             enemyType = self.spawnList2.pop()
-            self.enemyGroup.add(Enemy(enemyType, self.enemySheets, self.path2))
+            self.enemyGroup.add(Enemy(self, enemyType, self.enemySheets, self.path2))
 
     # Load the next round of enemies
     def nextRound(self): 
@@ -291,12 +292,9 @@ class Game:
                 self.placingTurrets = True
                 self.turretType = "fighter"
             
-
+            # Health and gold display
             self.drawText(f"Gold: {self.gold}", self.textFont, "black", 30, 30)
-
-            for enemy in self.enemyGroup:
-                pg.draw.rect(enemy.image, (255, 0, 0), (enemy.pos[0], enemy.pos[1], 50, 5))
-                pg.draw.rect(enemy.image, (0, 255, 0), (enemy.pos[0], enemy.pos[1], 50 * (enemy.hp / enemy.maxHp), 5))
+            self.drawText(f"Health: {self.health}", self.textFont, "black", 30, 60)
 
             # Sell button should only be visible when a turret is selected
             if self.selected_turret:

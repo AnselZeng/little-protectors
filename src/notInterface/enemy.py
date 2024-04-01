@@ -3,9 +3,12 @@ from pygame.math import Vector2
 import src.notInterface.constants as c
 from src.gameData import (ENEMY_DATA)
 class Enemy(pg.sprite.Sprite):
-    def __init__(self, type, spriteSheets, waypoints, frames = 6) -> None:
+    def __init__(self, parent, type, spriteSheets, waypoints, frames = 6) -> None:
         # Call the parent class (Sprite) constructor
         pg.sprite.Sprite.__init__(self)
+
+        # Set parent
+        self.parent = parent
 
         # Health
         self.maxHp = ENEMY_DATA[type]["hp"]
@@ -49,9 +52,10 @@ class Enemy(pg.sprite.Sprite):
             if self.nextWaypoint >= len(self.waypoints):
                 print("Enemy reached the end of the path")
                 self.kill()
+                self.parent.health -= 1
         else: # If the enemy is not close enough to the next waypoint, move towards it
             self.pos += self.movement.normalize() * self.speed
-            
+        
         self.rect.center = self.pos
 
     def update(self):
