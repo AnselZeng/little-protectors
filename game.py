@@ -7,7 +7,7 @@ from src.interface.turret import Turret
 from src.interface.button import Button
 from src.notInterface.enemy import Enemy
 import src.notInterface.constants as c
-from src.gameData import (ROUNDS)
+from src.gameData import (ROUNDS, TOWER_DATA)
 
 class Game:
     def __init__(self):
@@ -98,6 +98,8 @@ class Game:
         # Create groups
         self.enemyGroup = pg.sprite.Group()
         self.turretGroup = pg.sprite.Group()
+
+        self.turretTiles = [(turret.tile_x, turret.tile_y) for turret in self.turretGroup]
 
         # game variables
         self.selected_turret = None
@@ -221,6 +223,7 @@ class Game:
 
         # if it is a free space then create turret
         self.turretGroup.add(Turret(self.turretType, self.turretSheets, mouseTile))
+        self.turretTiles.append(mouseTile)
         print(f"{self.turretType} turret created @ {mouseTile}")
 
     def select_turret(self, mouse_pos):
@@ -299,8 +302,9 @@ class Game:
             # Sell button should only be visible when a turret is selected
             if self.selected_turret:
                 if self.sellButton.draw(self.screen):
-                    self.turretGroup.remove(self.selected_turret)
+                    self.turretTiles.remove((self.selected_turret.tile_x, self.selected_turret.tile_y))
                     self.gold += self.selected_turret.cost // 2
+                    self.selected_turret.kill()
                     self.selected_turret = None
 
             # If placing turrets then show the cancel button as well
@@ -312,6 +316,21 @@ class Game:
 
                 if cursor_pos[0] <= c.SCREEN_WIDTH:
                     self.screen.blit(self.turretStatics[self.turretType], cursor_rect)
+                    
+                    # Show range circle
+
+                    mouse_tile_x = pg.mouse.get_pos()[0] // c.TILE_SIZE
+                    mouse_tile_y = pg.mouse.get_pos()[1] // c.TILE_SIZE
+                    mouseTile = (mouse_tile_x, mouse_tile_y)
+                    rangeColour = "red" if (mouseTile in self.pathTiles or mouseTile in self.turretTiles) else "green"
+
+                    range = TOWER_DATA[self.turretType]["range"] * c.TILE_SIZE
+                    range_image = pg.Surface((range * 2, range * 2))
+                    range_image.fill((0, 0, 0))
+                    range_image.set_colorkey((0, 0, 0))
+                    pg.draw.circle(range_image, rangeColour, (range, range), range)
+                    range_image.set_alpha(100)
+                    self.screen.blit(range_image, (cursor_pos[0] - range, cursor_pos[1] - range))
 
                 # Exit placement mode if cancel button is pressed
                 if self.cancelButton.draw(self.screen):
