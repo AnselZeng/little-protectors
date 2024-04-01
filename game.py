@@ -232,7 +232,10 @@ class Game:
             # DRAWING SECTION
             #########################
 
-            self.screen.fill("grey100")
+            # Draw background
+            self.screen.fill((255, 255, 255))  # Fill with white color as a fallback
+            background = pg.image.load("assets/map/bg.png")  # Load background image
+            self.screen.blit(background, (0, 0))  # Blit background image at (0, 0)
 
             # Draw level
             self.world.draw(self.screen)
