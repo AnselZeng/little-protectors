@@ -336,7 +336,13 @@ class Game:
             # Draw level
             self.world.draw(self.screen)
 
+            # Update round display
             self.screen.blit(self.roundCounterImage, (35, 720))
+            self.drawText(f"{ROUNDS[self.currentRound][0]["rg"] + ROUNDS[self.currentRound][1]["rg"]}", 24, "white", 55, 762)
+            self.drawText(f"{ROUNDS[self.currentRound][0]["bg"] + ROUNDS[self.currentRound][1]["bg"]}", 24, "white", 89, 762)
+            self.drawText(f"{ROUNDS[self.currentRound][0]["yg"] + ROUNDS[self.currentRound][1]["yg"]}", 24, "white", 123, 762)
+            self.drawText(f"{ROUNDS[self.currentRound][0]["pg"] + ROUNDS[self.currentRound][1]["pg"]}", 24, "white", 157, 762)
+            self.drawText(f"{ROUNDS[self.currentRound][0]["tg"] + ROUNDS[self.currentRound][1]["tg"]}", 24, "white", 191, 762)
 
             # Draw groups
             self.enemyGroup.draw(self.screen)

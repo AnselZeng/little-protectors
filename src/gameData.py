@@ -128,7 +128,7 @@ TOWER_DATA = {
         "damage": 3,
         "range": 1.5,
         "cooldown": 300,
-        "cost": 40,
+        "cost": 60,
         "animation_steps": 6,
         "upgrades": {
             "damage": {
