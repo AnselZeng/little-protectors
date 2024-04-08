@@ -235,6 +235,8 @@ class Game:
         self.nextRoundButtonImage = pg.image.load("assets/buttons/play.png").convert_alpha()
         self.sellButtonImage = pg.image.load("assets/buttons/sell.png").convert_alpha()
 
+        self.roundCounterImage = pg.image.load("assets/map/roundCounter.png").convert_alpha()
+
         self.upgradeLeftImage = pg.image.load("assets/upgrades/left.png").convert_alpha()
         self.upgradeRightImage = pg.image.load("assets/upgrades/right1.png").convert_alpha()
         self.upgradeRightImageFaded = pg.image.load("assets/upgrades/right2.png").convert_alpha()
@@ -333,6 +335,8 @@ class Game:
 
             # Draw level
             self.world.draw(self.screen)
+
+            self.screen.blit(self.roundCounterImage, (35, 720))
 
             # Draw groups
             self.enemyGroup.draw(self.screen)
