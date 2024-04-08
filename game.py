@@ -1,5 +1,6 @@
 import pygame as pg
 import json
+import time
 
 # from enemy import Enemy
 from src.interface.world import World
@@ -222,7 +223,7 @@ class Game:
 
         # check if that tile is grass
         if mouseTile in self.pathTiles:
-            print("Can't place turret on path")
+            print("Invalid placement")
             return
 
         # check that there isn't already a turret there
@@ -231,9 +232,14 @@ class Game:
                 print("Turret already there")
                 return
 
-        # if it is a free space then create turret
+        # if it is a free space and the player has enough gold, create the turret
+        if self.gold < TOWER_DATA[self.turretType]["cost"]:
+            print("Not enough gold")
+            return
+        
         self.turretGroup.add(Turret(self.turretType, self.turretSheets, mouseTile))
         self.turretTiles.append(mouseTile)
+        self.gold -= TOWER_DATA[self.turretType]["cost"]
         print(f"{self.turretType} turret created @ {mouseTile}")
 
     def select_turret(self, mouse_pos):
@@ -289,10 +295,10 @@ class Game:
 
             # Draw buttons
             # Next round button
-            if len(self.enemyGroup) == 0:
+            if (not self.placingTurrets) and (len(self.enemyGroup) == 0):
                 if self.nextRoundButton.draw(self.screen):
-                    self.roundInProgress = True
                     self.spawningEnemies = True
+                    self.roundInProgress = True
 
             # Enter turret placement mode
             if self.archerButton.draw(self.screen):
@@ -312,11 +318,12 @@ class Game:
             # Sell button should only be visible when a turret is selected
             if self.selected_turret:
                 if self.sellButton.draw(self.screen):
-                    self.turretTiles.remove((self.selected_turret.tile_x, self.selected_turret.tile_y))
                     self.gold += self.selected_turret.cost // 2
+                    self.turretTiles.remove((self.selected_turret.tile_x, self.selected_turret.tile_y))
                     self.selected_turret.kill()
                     self.selected_turret = None
-                
+
+            if self.selected_turret:
                 # Selected turret
                 self.screen.blit(self.upgradeCardImage, (c.SCREEN_WIDTH + 5, 400))
                 self.screen.blit(self.turretStatics[self.selected_turret.type], (c.SCREEN_WIDTH - 15, 380))
@@ -377,7 +384,13 @@ class Game:
             for event in pg.event.get():
                 # Quit program
                 if event.type == pg.QUIT:
-                    run = False                      
+                    run = False      
+
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_ESCAPE:
+                        self.placingTurrets = False
+                        self.selected_turret = None
+                        self.clear_selection()                
 
                 # Mouse click
                 if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
