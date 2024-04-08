@@ -10,6 +10,9 @@ class Enemy(pg.sprite.Sprite):
         # Set parent
         self.parent = parent
 
+        # Set type
+        self.type = type
+
         # Health
         self.maxHp = ENEMY_DATA[type]["hp"]
         self.hp = ENEMY_DATA[type]["hp"]
@@ -40,6 +43,7 @@ class Enemy(pg.sprite.Sprite):
     def takeDamage(self, damage):
         self.hp -= damage
         if self.hp <= 0:
+            self.parent.gold += ENEMY_DATA[self.type]["gold"]
             self.kill()
 
     def move(self):

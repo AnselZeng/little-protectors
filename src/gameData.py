@@ -86,8 +86,22 @@ TOWER_DATA = {
         "damage": 2,
         "range": 4,
         "cooldown": 500,
-        "cost": 10,
+        "cost": 30,
         "animation_steps": 8,
+        "upgrades": { # cost, increase
+            "damage": {
+                "cost": 20,
+                "increase": 1
+            },
+            "range": {
+                "cost": 40,
+                "increase": 1
+            },
+            "cooldown": {
+                "cost": 60,
+                "increase": 100
+            },
+        },
     },
     "knight": {
         "damage": 1.5,
@@ -95,12 +109,40 @@ TOWER_DATA = {
         "cooldown": 200,
         "cost": 20,
         "animation_steps": 6,
+        "upgrades": {
+            "damage": {
+                "cost": 20,
+                "increase": 1.5
+            },
+            "range": {
+                "cost": 40,
+                "increase": 1
+            },
+            "cooldown": {
+                "cost": 60,
+                "increase": 75
+            },
+        },
     },
     "fighter": {
         "damage": 3,
         "range": 3,
         "cooldown": 300,
-        "cost": 30,
-        "animation_steps": 6
+        "cost": 40,
+        "animation_steps": 6,
+        "upgrades": {
+            "damage": {
+                "cost": 20,
+                "increase": 1.5
+            },
+            "range": {
+                "cost": 40,
+                "increase": 1
+            },
+            "cooldown": {
+                "cost": 60,
+                "increase": 100
+            },
+        }
     }
 }

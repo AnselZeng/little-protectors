@@ -124,20 +124,29 @@ class Game:
         self.sellButton = Button(c.SCREEN_WIDTH + 15, 750, self.sellButtonImage, True)
 
         # Upgrade buttons
+        # Attack
         self.attackButtonLeft = Button(c.SCREEN_WIDTH + 15, 520, self.upgradeLeftImage, True)
         self.attackButtonRight = Button(c.SCREEN_WIDTH + 150, 520, self.upgradeRightImage, True)
+        self.attackButtonRightFaded = Button(c.SCREEN_WIDTH + 150, 520, self.upgradeRightImageFaded, True)
+        # Range
         self.rangeButtonLeft = Button(c.SCREEN_WIDTH + 15, 585, self.upgradeLeftImage, True)
         self.rangeButtonRight = Button(c.SCREEN_WIDTH + 150, 585, self.upgradeRightImage, True)
+        self.rangeButtonRightFaded = Button(c.SCREEN_WIDTH + 150, 585, self.upgradeRightImageFaded, True)
+        # Speed/Cooldown
         self.speedButtonLeft = Button(c.SCREEN_WIDTH + 15, 650, self.upgradeLeftImage, True)
         self.speedButtonRight = Button(c.SCREEN_WIDTH + 150, 650, self.upgradeRightImage, True)
+        self.speedButtonRightFaded = Button(c.SCREEN_WIDTH + 150, 650, self.upgradeRightImageFaded, True)
 
         # Initialize resources
         self.gold = 100
         self.health = 10
+        self.meat = 500
+        self.wood = 200
+        self.stone = 400
     
     # Draw text
     def drawText(self, text, size, colour, x, y):
-        textFont = pg.font.SysFont("consolas", size)
+        textFont = pg.font.Font("assets/Itim-Regular.ttf", size)
         img = textFont.render(text, True, colour)
         self.screen.blit(img, (x, y))
 
@@ -146,6 +155,9 @@ class Game:
         if not (self.spawnList1 or self.spawnList2): # If there are no more enemies to spawn
             self.spawningEnemies = False
             self.currentRound += 1
+            if self.currentRound == len(ROUNDS):
+                print("Game over")
+                return
             self.nextRound()
             return
         if self.spawnList1: # If there are enemies to spawn on path 1
@@ -168,6 +180,10 @@ class Game:
                 self.spawnList1.append(enemyType)
             for _ in range(enemyP2[enemyType]):
                 self.spawnList2.append(enemyType)
+
+        # Update round display
+        
+
         print(f"Round {self.currentRound + 1}/{len(ROUNDS)}")
         print(self.spawnList1)
         print(self.spawnList2)
@@ -176,6 +192,10 @@ class Game:
     def load_images(self):
         # Map
         self.mapImage = pg.image.load("assets/map/map.png").convert_alpha()
+
+        # Assets
+        self.goldImage = pg.image.load("assets/resources/gold.png").convert_alpha()
+        self.heartImage = pg.image.load("assets/resources/heart.png").convert_alpha()
 
         # Turret spritesheets
         self.turretSheets = {
@@ -214,6 +234,7 @@ class Game:
 
         self.upgradeLeftImage = pg.image.load("assets/upgrades/left.png").convert_alpha()
         self.upgradeRightImage = pg.image.load("assets/upgrades/right1.png").convert_alpha()
+        self.upgradeRightImageFaded = pg.image.load("assets/upgrades/right2.png").convert_alpha()
         self.upgradeCardImage = pg.image.load("assets/upgrades/card.png").convert_alpha()
 
     def create_turret(self, mouse_pos):
@@ -248,6 +269,32 @@ class Game:
         for turret in self.turretGroup:
             if (mouse_tile_x, mouse_tile_y) == (turret.tile_x, turret.tile_y):
                 return turret
+    
+    def upgrade_turret(self, turret, upgrade):
+        if upgrade == "damage":
+            turret.damage += TOWER_DATA[turret.type]["upgrades"]["damage"]["increase"]
+            turret.upgraded[0] = True
+            self.gold -= TOWER_DATA[turret.type]["upgrades"]["damage"]["cost"]
+
+        elif upgrade == "range":
+            turret.range += TOWER_DATA[turret.type]["upgrades"]["range"]["increase"] * c.TILE_SIZE
+            # update range circle
+            turret.range_circle = pg.Surface((turret.range * 2, turret.range * 2))
+            turret.range_circle.fill((0, 0, 0))
+            turret.range_circle.set_colorkey((0, 0, 0))
+            pg.draw.circle(turret.range_circle, "grey100", (turret.range, turret.range), turret.range)
+            turret.range_circle.set_alpha(100)
+            turret.range_rect = turret.range_circle.get_rect()
+            turret.range_rect.center = turret.rect.center
+            # set state to upgraded
+            turret.upgraded[1] = True
+            self.gold -= TOWER_DATA[turret.type]["upgrades"]["range"]["cost"]
+
+        elif upgrade == "cooldown":
+            turret.cooldown -= TOWER_DATA[turret.type]["upgrades"]["cooldown"]["increase"]
+            turret.upgraded[2] = True
+            self.gold -= TOWER_DATA[turret.type]["upgrades"]["cooldown"]["cost"]
+
 
     def clear_selection(self):
         for turret in self.turretGroup:
@@ -312,8 +359,9 @@ class Game:
                 self.turretType = "fighter"
             
             # Health and gold display
-            self.drawText(f"Gold: {self.gold}", 24, "black", 30, 30)
-            self.drawText(f"Health: {self.health}", 24, "black", 30, 60)
+            self.screen.blit(self.heartImage, (35, 30))
+            self.drawText(f"${self.gold}", 40, "white", c.SCREEN_WIDTH + 110, 325)
+            self.drawText(f"x{self.health}", 40, "white", 90, 30)
 
             # Sell button should only be visible when a turret is selected
             if self.selected_turret:
@@ -329,21 +377,50 @@ class Game:
                 self.screen.blit(self.turretStatics[self.selected_turret.type], (c.SCREEN_WIDTH - 15, 380))
                 self.drawText(f"{self.selected_turret.type}", 30, "white", c.SCREEN_WIDTH + 150, 450)
                 # Upgrade buttons 
-
+                # Attack
                 self.attackButtonLeft.draw(self.screen)
-                self.drawText(f"Atk: {self.selected_turret.damage}", 20, "white", c.SCREEN_WIDTH + 20, 540)
-                if self.attackButtonRight.draw(self.screen):
-                    print("Upgrade Attack")
+                self.drawText(f"Atk: {self.selected_turret.damage}", 20, "white", c.SCREEN_WIDTH + 20, 535)
+                # If turret has not been upgraded
+                if not self.selected_turret.upgraded[0]:
+                    if self.attackButtonRight.draw(self.screen) and \
+                        self.gold >= TOWER_DATA[self.selected_turret.type]["upgrades"]["damage"]["cost"]:
+                        self.upgrade_turret(self.selected_turret, "damage")
 
+                    self.drawText(f"UPGRADE", 14, "white", c.SCREEN_WIDTH + 190, 530)
+                    self.drawText(f"${TOWER_DATA[self.selected_turret.type]['upgrades']['damage']['cost']}", 14, "white", c.SCREEN_WIDTH + 210, 550)
+                else:
+                    self.attackButtonRightFaded.draw(self.screen)
+                    self.drawText(f"UPGRADED", 14, "white", c.SCREEN_WIDTH + 180, 540)
+
+                # Range
                 self.rangeButtonLeft.draw(self.screen)
-                self.drawText(f"Rng: {self.selected_turret.range // c.TILE_SIZE}", 20, "white", c.SCREEN_WIDTH + 20, 605)
-                if self.rangeButtonRight.draw(self.screen):
-                    print("Upgrade Range")
+                self.drawText(f"Rng: {self.selected_turret.range // c.TILE_SIZE}", 20, "white", c.SCREEN_WIDTH + 20, 600)
+                # If turret has not been upgraded
+                if not self.selected_turret.upgraded[1]:
+                    if self.rangeButtonRight.draw(self.screen) and \
+                        self.gold >= TOWER_DATA[self.selected_turret.type]["upgrades"]["range"]["cost"]:
+                        self.upgrade_turret(self.selected_turret, "range")
 
+                    self.drawText(f"UPGRADE", 14, "white", c.SCREEN_WIDTH + 190, 590)
+                    self.drawText(f"${TOWER_DATA[self.selected_turret.type]['upgrades']['range']['cost']}", 14, "white", c.SCREEN_WIDTH + 210, 610)
+                else:
+                    self.rangeButtonRightFaded.draw(self.screen)
+                    self.drawText(f"UPGRADED", 14, "white", c.SCREEN_WIDTH + 180, 605)
+
+                # Speed/Cooldown
                 self.speedButtonLeft.draw(self.screen)
-                self.drawText(f"Spd: {round(1/(self.selected_turret.cooldown/1000), 1)}", 20, "white", c.SCREEN_WIDTH + 20, 670)
-                if self.speedButtonRight.draw(self.screen):
-                    print("Upgrade Speed")
+                self.drawText(f"Spd: {round(1/(self.selected_turret.cooldown/1000), 1)}", 20, "white", c.SCREEN_WIDTH + 20, 665)
+                # If turret has not been upgraded
+                if not self.selected_turret.upgraded[2]:
+                    if self.speedButtonRight.draw(self.screen) and \
+                        self.gold >= TOWER_DATA[self.selected_turret.type]["upgrades"]["cooldown"]["cost"]:
+                        self.upgrade_turret(self.selected_turret, "cooldown")
+
+                    self.drawText(f"UPGRADE", 14, "white", c.SCREEN_WIDTH + 190, 660)
+                    self.drawText(f"${TOWER_DATA[self.selected_turret.type]['upgrades']['cooldown']['cost']}", 14, "white", c.SCREEN_WIDTH + 210, 680)
+                else:
+                    self.speedButtonRightFaded.draw(self.screen)
+                    self.drawText(f"UPGRADED", 14, "white", c.SCREEN_WIDTH + 180, 670)
 
             # If placing turrets then show the cancel button as well
             if self.placingTurrets:

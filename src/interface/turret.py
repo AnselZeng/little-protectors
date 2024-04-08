@@ -15,6 +15,7 @@ class Turret(pg.sprite.Sprite):
         self.target = None
         self.type = type
         self.damage = TOWER_DATA[type]["damage"]
+        self.upgraded = [False, False, False] # upgrade levels
 
         # position variables
         self.tile_x = tile[0]
@@ -37,14 +38,14 @@ class Turret(pg.sprite.Sprite):
         self.rect.center = (self.x, self.y)
 
         # create transparent circle showing range
-        self.range_image = pg.Surface((self.range * 2, self.range * 2))
-        self.range_image.fill((0, 0, 0))
-        self.range_image.set_colorkey((0, 0, 0))
+        self.range_circle = pg.Surface((self.range * 2, self.range * 2))
+        self.range_circle.fill((0, 0, 0))
+        self.range_circle.set_colorkey((0, 0, 0))
         pg.draw.circle(
-            self.range_image, "grey100", (self.range, self.range), self.range
+            self.range_circle, "grey100", (self.range, self.range), self.range
         )
-        self.range_image.set_alpha(100)
-        self.range_rect = self.range_image.get_rect()
+        self.range_circle.set_alpha(100)
+        self.range_rect = self.range_circle.get_rect()
         self.range_rect.center = self.rect.center
 
     def load_images(self):
@@ -103,4 +104,4 @@ class Turret(pg.sprite.Sprite):
         self.rect.center = (self.x, self.y)
         surface.blit(self.image, self.rect)
         if self.selected:
-            surface.blit(self.range_image, self.range_rect)
+            surface.blit(self.range_circle, self.range_rect)
