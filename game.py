@@ -31,6 +31,7 @@ class Game:
         self.placingTurrets = False
         self.mainMenu = True
         self.popupState = False
+        self.gameOver = False
 
         # Create world
         self.world = World(self.mapImage)
@@ -129,6 +130,8 @@ class Game:
         # Popup buttons
         self.yesButton = Button(300, 475, self.yesImage, True)
         self.noButton = Button(475, 475, self.noImage, True)
+
+        self.gameOverYesButton = Button(390, 485, self.yesImage, True)
 
         # Map buttons
         self.level1Button = Button(437, 140, self.level1Image, True)
@@ -253,6 +256,9 @@ class Game:
         self.popupImage = pg.image.load("assets/buttons/popup.png").convert_alpha()
         self.yesImage = pg.image.load("assets/buttons/yes.png").convert_alpha()
         self.noImage = pg.image.load("assets/buttons/no.png").convert_alpha()
+
+        # Gameover buttons
+        self.gameOverImage = pg.image.load("assets/buttons/gameover.png").convert_alpha()
 
         self.roundCounterImage = pg.image.load("assets/map/roundCounter.png").convert_alpha()
 
@@ -387,6 +393,24 @@ class Game:
                         pg.draw.line(self.screen, "red", turret.rect.center, turret.target.pos, 2)
 
                 # Draw buttons
+                if self.currentRound >= len(ROUNDS) and len(self.enemyGroup) == 0:
+                    self.screen.blit(self.gameOverImage, (c.SCREEN_WIDTH // 2 - 200, c.SCREEN_HEIGHT // 2 - 100))
+                    if self.gameOverYesButton.draw(self.screen):
+                        self.mainMenu = True
+                        self.currentRound = 0
+                        self.roundInProgress = False
+                        self.spawningEnemies = False
+                        self.enemyGroup.empty()
+                        self.turretGroup.empty()
+                        self.turretTiles = []
+                        self.gold = 100
+                        self.health = 10
+                        self.meat = 500
+                        self.wood = 200
+                        self.stone = 400
+                        self.gameOver = False
+                        self.popupState = False
+
                 # Home button
                 if self.homeButton.draw(self.screen):
                     self.popupState = True
@@ -412,7 +436,7 @@ class Game:
 
 
                 # Next round button
-                if (not self.placingTurrets) and (len(self.enemyGroup) == 0):
+                if (not self.placingTurrets) and (len(self.enemyGroup) == 0) and (self.currentRound < len(ROUNDS)):
                     if self.nextRoundButton.draw(self.screen):
                         self.spawningEnemies = True
                         self.roundInProgress = True
