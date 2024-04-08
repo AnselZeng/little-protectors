@@ -179,7 +179,7 @@ class Game:
 
     # Load the next round of enemies
     def nextRound(self): 
-        if self.currentRound == len(ROUNDS):
+        if self.currentRound >= len(ROUNDS):
             print("Game over")
             return
         enemyP1, enemyP2 = ROUNDS[self.currentRound]
@@ -315,7 +315,7 @@ class Game:
             self.gold -= TOWER_DATA[turret.type]["upgrades"]["range"]["cost"]
 
         elif upgrade == "cooldown":
-            turret.cooldown -= TOWER_DATA[turret.type]["    grades"]["cooldown"]["increase"]
+            turret.cooldown -= TOWER_DATA[turret.type]["upgrades"]["cooldown"]["increase"]
             turret.upgraded[2] = True
             self.gold -= TOWER_DATA[turret.type]["upgrades"]["cooldown"]["cost"]
 
@@ -363,11 +363,19 @@ class Game:
 
                 # Update round display
                 self.screen.blit(self.roundCounterImage, (35, 720))
-                self.drawText(f"{ROUNDS[self.currentRound][0]["rg"] + ROUNDS[self.currentRound][1]["rg"]}", 24, "white", 55, 762)
-                self.drawText(f"{ROUNDS[self.currentRound][0]["bg"] + ROUNDS[self.currentRound][1]["bg"]}", 24, "white", 89, 762)
-                self.drawText(f"{ROUNDS[self.currentRound][0]["yg"] + ROUNDS[self.currentRound][1]["yg"]}", 24, "white", 123, 762)
-                self.drawText(f"{ROUNDS[self.currentRound][0]["pg"] + ROUNDS[self.currentRound][1]["pg"]}", 24, "white", 157, 762)
-                self.drawText(f"{ROUNDS[self.currentRound][0]["tg"] + ROUNDS[self.currentRound][1]["tg"]}", 24, "white", 191, 762)
+                if self.currentRound < len(ROUNDS):
+                    self.drawText(f"{ROUNDS[self.currentRound][0]['rg'] + ROUNDS[self.currentRound][1]['rg']}", 24, "white", 55, 762)
+                    self.drawText(f"{ROUNDS[self.currentRound][0]['bg'] + ROUNDS[self.currentRound][1]['bg']}", 24, "white", 89, 762)
+                    self.drawText(f"{ROUNDS[self.currentRound][0]['yg'] + ROUNDS[self.currentRound][1]['yg']}", 24, "white", 123, 762)
+                    self.drawText(f"{ROUNDS[self.currentRound][0]['pg'] + ROUNDS[self.currentRound][1]['pg']}", 24, "white", 157, 762)
+                    self.drawText(f"{ROUNDS[self.currentRound][0]['tg'] + ROUNDS[self.currentRound][1]['tg']}", 24, "white", 191, 762)
+                else:
+                    self.drawText(f"0", 24, "white", 55, 762)
+                    self.drawText(f"0", 24, "white", 89, 762)
+                    self.drawText(f"0", 24, "white", 123, 762)
+                    self.drawText(f"0", 24, "white", 157, 762)
+                    self.drawText(f"0", 24, "white", 191, 762)
+                
 
                 # Draw groups
                 self.enemyGroup.draw(self.screen)
