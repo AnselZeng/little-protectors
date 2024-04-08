@@ -86,7 +86,7 @@ TOWER_DATA = {
         "damage": 2,
         "range": 4,
         "cooldown": 500,
-        "cost": 30,
+        "cost": 40,
         "animation_steps": 8,
         "upgrades": { # cost, increase
             "damage": {
