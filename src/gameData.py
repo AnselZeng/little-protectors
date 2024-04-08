@@ -105,10 +105,10 @@ TOWER_DATA = {
     },
     "knight": {
         "damage": 1.5,
-        "range": 2,
+        "range": 1.5,
         "cooldown": 200,
         "cost": 20,
-        "animation_steps": 6,
+        "animation_steps": 6,   
         "upgrades": {
             "damage": {
                 "cost": 20,
@@ -126,7 +126,7 @@ TOWER_DATA = {
     },
     "fighter": {
         "damage": 3,
-        "range": 3,
+        "range": 1.5,
         "cooldown": 300,
         "cost": 40,
         "animation_steps": 6,
