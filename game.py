@@ -30,6 +30,7 @@ class Game:
         # Game State
         self.placingTurrets = False
         self.mainMenu = True
+        self.popupState = False
 
         # Create world
         self.world = World(self.mapImage)
@@ -121,8 +122,13 @@ class Game:
         self.archerButton = Button(c.SCREEN_WIDTH + 105, 55, self.archerButtonImage, True)
         self.fighterButton = Button(c.SCREEN_WIDTH + 205, 55, self.fighterButtonImage, True)
         self.cancelButton = Button(c.SCREEN_WIDTH + 15, 750, self.cancelButtonImage, True)
-        self.nextRoundButton = Button(c.SCREEN_WIDTH -80, 750, self.nextRoundButtonImage, True)
+        self.nextRoundButton = Button(c.SCREEN_WIDTH - 80, 750, self.nextRoundButtonImage, True)
         self.sellButton = Button(c.SCREEN_WIDTH + 15, 750, self.sellButtonImage, True)
+        self.homeButton = Button(c.SCREEN_WIDTH - 80, 25, self.homeButtonImage, True)
+
+        # Popup buttons
+        self.yesButton = Button(300, 475, self.yesImage, True)
+        self.noButton = Button(475, 475, self.noImage, True)
 
         # Map buttons
         self.level1Button = Button(437, 140, self.level1Image, True)
@@ -241,6 +247,12 @@ class Game:
         self.cancelButtonImage = pg.image.load("assets/buttons/cancel_icon.png").convert_alpha()
         self.nextRoundButtonImage = pg.image.load("assets/buttons/play.png").convert_alpha()
         self.sellButtonImage = pg.image.load("assets/buttons/sell.png").convert_alpha()
+        self.homeButtonImage = pg.image.load("assets/buttons/home.png").convert_alpha()
+
+        # Popup buttons
+        self.popupImage = pg.image.load("assets/buttons/popup.png").convert_alpha()
+        self.yesImage = pg.image.load("assets/buttons/yes.png").convert_alpha()
+        self.noImage = pg.image.load("assets/buttons/no.png").convert_alpha()
 
         self.roundCounterImage = pg.image.load("assets/map/roundCounter.png").convert_alpha()
 
@@ -367,6 +379,30 @@ class Game:
                         pg.draw.line(self.screen, "red", turret.rect.center, turret.target.pos, 2)
 
                 # Draw buttons
+                # Home button
+                if self.homeButton.draw(self.screen):
+                    self.popupState = True
+                
+                if self.popupState:
+                    self.screen.blit(self.popupImage, (c.SCREEN_WIDTH // 2 - 200, c.SCREEN_HEIGHT // 2 - 100))
+                    if self.yesButton.draw(self.screen):
+                        self.mainMenu = True
+                        self.currentRound = 0
+                        self.roundInProgress = False
+                        self.spawningEnemies = False
+                        self.enemyGroup.empty()
+                        self.turretGroup.empty()
+                        self.turretTiles = []
+                        self.gold = 100
+                        self.health = 10
+                        self.meat = 500
+                        self.wood = 200
+                        self.stone = 400
+                        self.popupState = False
+                    if self.noButton.draw(self.screen):
+                        self.popupState = False
+
+
                 # Next round button
                 if (not self.placingTurrets) and (len(self.enemyGroup) == 0):
                     if self.nextRoundButton.draw(self.screen):
