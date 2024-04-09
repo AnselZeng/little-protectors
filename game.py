@@ -257,6 +257,8 @@ class Game:
         self.yesImage = pg.image.load("assets/buttons/yes.png").convert_alpha()
         self.noImage = pg.image.load("assets/buttons/no.png").convert_alpha()
 
+        self.loseImage = pg.image.load("assets/buttons/lose.png").convert_alpha()
+
         # Gameover buttons
         self.gameOverImage = pg.image.load("assets/buttons/gameover.png").convert_alpha()
 
@@ -393,8 +395,11 @@ class Game:
                         pg.draw.line(self.screen, "red", turret.rect.center, turret.target.pos, 2)
 
                 # Draw buttons
-                if self.currentRound >= len(ROUNDS) and len(self.enemyGroup) == 0:
-                    self.screen.blit(self.gameOverImage, (c.SCREEN_WIDTH // 2 - 200, c.SCREEN_HEIGHT // 2 - 100))
+                if (self.currentRound >= len(ROUNDS) and len(self.enemyGroup) == 0) or (self.health <= 0):
+                    if self.health > 0:
+                        self.screen.blit(self.gameOverImage, (c.SCREEN_WIDTH // 2 - 200, c.SCREEN_HEIGHT // 2 - 100))
+                    else:
+                        self.screen.blit(self.loseImage, (c.SCREEN_WIDTH // 2 - 200, c.SCREEN_HEIGHT // 2 - 100))
                     if self.gameOverYesButton.draw(self.screen):
                         self.mainMenu = True
                         self.currentRound = 0
